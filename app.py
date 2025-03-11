@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin
@@ -26,6 +26,53 @@ def home():
         output = 'NA'
 
     return render_template('index.html', output=output)
+
+
+@app.route('/api/check-url', methods=['POST'])
+def check_url_api():
+    try:
+        url = request.form.get('url')
+        if not url:
+            return jsonify({
+                'status': 'ERROR',
+                'message': 'URL parameter is required'
+            }), 400
+            
+        result = controller.main(url)
+        
+        # Extract only the necessary data for the extension
+        # Ensure all values are properly typed
+        trust_score = result.get('trust_score', 0)
+        # Convert trust_score to int if it's not already
+        if not isinstance(trust_score, int):
+            try:
+                trust_score = int(trust_score)
+            except (ValueError, TypeError):
+                trust_score = 0
+                
+        response_data = {
+            'status': result.get('status', 'ERROR'),
+            'url': result.get('url', url),
+            'trust_score': trust_score,
+            'is_safe': trust_score >= 50,
+            'domain_age': str(result.get('age', 'Unknown')),
+            'domain_rank': str(result.get('rank', 'Unknown')),
+            'ip_present': bool(result.get('ip_present', False)),
+            'is_url_shortened': bool(result.get('is_url_shortened', False)),
+            'hsts_support': bool(result.get('hsts_support', False)),
+            'too_long_url': bool(result.get('too_long_url', False)),
+            'too_deep_url': bool(result.get('too_deep_url', False))
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"API Error: {str(e)}")
+        return jsonify({
+            'status': 'ERROR',
+            'message': str(e),
+            'url': request.form.get('url', '')
+        }), 500
 
 
 @app.route('/preview', methods=['POST'])
@@ -92,5 +139,4 @@ def update_json():
 
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True, port=5001)  # Re-enabled reloader
