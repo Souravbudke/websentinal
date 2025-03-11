@@ -2,11 +2,30 @@
 // This script runs when the popup is opened
 
 // Function to update the popup UI with website safety information
+function formatUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    if (url.length > 50) {
+      // Format: domain.com/...
+      return `${urlObj.hostname}${urlObj.pathname.length > 0 ? '/...' : ''}`;
+    }
+    return url;
+  } catch (e) {
+    return url;
+  }
+}
+
 function updatePopup(url, data) {
   console.log("Updating popup with data:", data);
   
-  // Update URL
-  document.getElementById('current-url').textContent = url;
+  // Update URL display with truncation and make it clickable
+  const urlElement = document.getElementById('current-url');
+  urlElement.innerHTML = `<a href="${url}" title="${url}" target="_blank">${formatUrl(url)}</a>`;
+  urlElement.style.maxWidth = '100%';
+  urlElement.style.overflow = 'hidden';
+  urlElement.style.textOverflow = 'ellipsis';
+  urlElement.style.whiteSpace = 'nowrap';
+  urlElement.style.display = 'block';
   
   // Get status container
   const statusContainer = document.getElementById('status-container');
