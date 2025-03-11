@@ -4,186 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebSentinal Security</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      width: 350px;
-      margin: 0;
-      padding: 0;
-      background-color: #f8f9fa;
-    }
-    
-    .header {
-      background-color: #4a6cf7;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      border-bottom: 3px solid #3a5ce5;
-    }
-    
-    .header h1 {
-      margin: 0;
-      font-size: 20px;
-    }
-    
-    .content {
-      padding: 15px;
-      padding-bottom: 60px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    
-    .status {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    
-    .status-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 15px;
-      font-size: 20px;
-    }
-    
-    .safe {
-      background-color: #e6f7e6;
-      border: 1px solid #c3e6cb;
-    }
-    
-    .safe .status-icon {
-      background-color: #28a745;
-      color: white;
-    }
-    
-    .unsafe {
-      background-color: #f8d7da;
-      border: 1px solid #f5c6cb;
-    }
-    
-    .unsafe .status-icon {
-      background-color: #dc3545;
-      color: white;
-    }
-    
-    .unknown {
-      background-color: #fff3cd;
-      border: 1px solid #ffeeba;
-    }
-    
-    .unknown .status-icon {
-      background-color: #ffc107;
-      color: white;
-    }
-    
-    .status-text h2 {
-      margin: 0;
-      font-size: 16px;
-    }
-    
-    .status-text p {
-      margin: 5px 0 0 0;
-      font-size: 14px;
-    }
-    
-    .details {
-      background-color: white;
-      border: 1px solid #dee2e6;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-    
-    .details h3 {
-      margin: 0 0 10px 0;
-      font-size: 16px;
-      color: #4a6cf7;
-    }
-    
-    .detail-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-    
-    .detail-label {
-      color: #6c757d;
-    }
-    
-    .detail-value {
-      font-weight: 500;
-    }
-    
-    .button {
-      display: block;
-      width: 100%;
-      margin: 0;
-      padding: 12px 0;
-      background-color: #4a6cf7;
-      color: white;
-      border: none;
-      border-radius: 0;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      text-align: center;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .button:hover {
-      background-color: #3a5ce5;
-    }
-    
-    .button:active {
-      background-color: #2f4ccc;
-    }
-    
-    #current-url {
-      padding: 8px;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      background-color: #f5f5f5;
-      word-break: break-all;
-    }
-    
-    #current-url a {
-      color: #2196F3;
-      text-decoration: none;
-      font-size: 14px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    }
-    
-    #current-url a:hover {
-      text-decoration: underline;
-      color: #1976D2;
-    }
-    
-    .website-details {
-      margin-top: 15px;
-    }
-    
-    .footer {
-      text-align: center;
-      padding: 10px 15px;
-      font-size: 12px;
-      color: #6c757d;
-      border-top: 1px solid #dee2e6;
-      margin-bottom: 50px;
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 <body>
   <div class="header">
@@ -193,37 +14,38 @@
   <div class="content">
     <div id="status-container">
       <!-- Status will be inserted here by JavaScript -->
-      <div class="status unknown">
-        <div class="status-icon">?</div>
-        <div class="status-text">
-          <h2>Checking website...</h2>
-          <p>Please wait while we analyze this website.</p>
-        </div>
+    </div>
+    
+    <div id="warning-message" class="warning-message" style="display: none;">
+      <div class="icon">⚠️</div>
+      <div class="message">
+        <strong>Warning: Potentially Unsafe</strong>
+        <p>This website may be dangerous. Proceed with caution.</p>
       </div>
     </div>
     
-    <div id="details-container" class="details">
+    <div class="details">
       <h3>Website Details</h3>
       <div class="detail-item">
         <span class="detail-label">URL:</span>
-        <span class="detail-value" id="current-url">Loading...</span>
+        <span id="current-url" class="detail-value"></span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Trust Score:</span>
-        <span class="detail-value" id="trust-score">--</span>
+        <span id="trust-score" class="detail-value">--</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Domain Age:</span>
-        <span class="detail-value" id="domain-age">--</span>
+        <span id="domain-age" class="detail-value">--</span>
       </div>
       <div class="detail-item">
         <span class="detail-label">Domain Rank:</span>
-        <span class="detail-value" id="domain-rank">--</span>
+        <span id="domain-rank" class="detail-value">--</span>
       </div>
     </div>
-    
-    <a href="http://localhost:5001" target="_blank" class="button">Full Analysis</a>
   </div>
+  
+  <a href="http://localhost:5001" target="_blank" class="button" id="full-analysis-btn">Full Analysis</a>
   
   <div class="footer">
     Powered by WebSentinal Security

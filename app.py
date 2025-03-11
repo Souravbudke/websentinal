@@ -15,17 +15,31 @@ with app.app_context():
 controller = Controller()
 
 
-@app.route('/',  methods=['GET','POST'])
-def home():
-    
-    try:
-        url = request.form['url']
-        result = controller.main(url)
-        output = result
-    except:
-        output = 'NA'
-
-    return render_template('index.html', output=output)
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        url = request.form.get('url')
+        if url:
+            result = controller.main(url)
+            output = {
+                'status': 'SUCCESS',
+                'url': url,
+                'trust_score': result.get('trust_score', 0),
+                'age': result.get('age', 'Unknown'),
+                'rank': result.get('rank', 'Unknown'),
+                'response_status': result.get('response_status', False),
+                'ip': result.get('ip', 'Unknown'),
+                'is_url_shortened': result.get('is_url_shortened', 0),
+                'hsts_support': result.get('hsts_support', 0),
+                'ip_present': result.get('ip_present', 0),
+                'url_redirects': result.get('url_redirects', 0),
+                'too_long_url': result.get('too_long_url', 0),
+                'too_deep_url': result.get('too_deep_url', 0),
+                'ssl': result.get('ssl', 0),
+                'whois': result.get('whois', {})
+            }
+            return render_template('index.html', output=output)
+    return render_template('index.html')
 
 
 @app.route('/api/check-url', methods=['POST'])

@@ -8,6 +8,23 @@ function createWarningPopup(data) {
     return;
   }
   
+  // Don't show warnings for localhost URLs
+  const currentUrl = window.location.href;
+  if (currentUrl.includes('localhost') || 
+      currentUrl.includes('127.0.0.1') || 
+      currentUrl === 'http://127.0.0.1:5001/' ||
+      currentUrl.startsWith('http://127.0.0.1:5001')) {
+    console.log('WebSentinal: Skipping warning for localhost URL:', currentUrl);
+    
+    // Remove any existing warnings
+    const existingWarning = document.getElementById('websentinal-warning');
+    if (existingWarning) {
+      existingWarning.remove();
+    }
+    
+    return;
+  }
+  
   // Create the popup container
   const popup = document.createElement('div');
   popup.id = 'websentinal-warning';
@@ -80,9 +97,47 @@ function createWarningPopup(data) {
   });
 }
 
+// Function to remove any existing warnings
+function removeWarnings() {
+  const warning = document.getElementById('websentinal-warning');
+  if (warning) {
+    warning.remove();
+  }
+}
+
+// Check if we're on a localhost URL and remove warnings if so
+function checkAndRemoveForLocalhost() {
+  const currentUrl = window.location.href;
+  if (currentUrl.includes('localhost') || 
+      currentUrl.includes('127.0.0.1') || 
+      currentUrl === 'http://127.0.0.1:5001/' ||
+      currentUrl.startsWith('http://127.0.0.1:5001')) {
+    console.log('WebSentinal: Removing warnings for localhost URL:', currentUrl);
+    removeWarnings();
+    return true;
+  }
+  return false;
+}
+
+// Run immediately to remove any existing warnings for localhost
+if (checkAndRemoveForLocalhost()) {
+  // Set up an interval to keep checking and removing warnings
+  setInterval(checkAndRemoveForLocalhost, 1000);
+}
+
 // Listen for messages from the background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Skip warnings for localhost URLs
   if (message.action === 'showWarning') {
+    const currentUrl = window.location.href;
+    if (currentUrl.includes('localhost') || 
+        currentUrl.includes('127.0.0.1') || 
+        currentUrl === 'http://127.0.0.1:5001/' ||
+        currentUrl.startsWith('http://127.0.0.1:5001')) {
+      console.log('WebSentinal: Skipping warning for localhost URL:', currentUrl);
+      removeWarnings();
+      return;
+    }
     createWarningPopup(message.data);
   }
 }); 

@@ -9,6 +9,18 @@ async function checkUrlSafety(url) {
   try {
     console.log("Checking URL safety for:", url);
     
+    // Special handling for localhost URLs
+    if (url.includes('localhost') || url.includes('127.0.0.1')) {
+      console.log("Localhost detected, returning safe result");
+      return {
+        isSafe: true,
+        trustScore: 100,
+        domainAge: 'Local Development',
+        domainRank: 'Local',
+        details: 'Local development server'
+      };
+    }
+    
     // Create form data to match the expected format in the Flask app
     const formData = new FormData();
     formData.append('url', url);
@@ -27,10 +39,10 @@ async function checkUrlSafety(url) {
         
         // Ensure we have valid data
         const trustScore = typeof jsonData.trust_score === 'number' ? jsonData.trust_score : 
-                          (jsonData.trust_score === 'Unknown' ? 'Unknown' : 0);
+                          (jsonData.trust_score === 'Unknown' ? 50 : parseInt(jsonData.trust_score) || 0);
         
         return {
-          isSafe: jsonData.is_safe === true,
+          isSafe: trustScore >= 50,
           trustScore: trustScore,
           domainAge: jsonData.domain_age || 'Unknown',
           domainRank: jsonData.domain_rank || 'Unknown',
@@ -105,7 +117,6 @@ async function checkUrlSafety(url) {
     
     // Special handling for popular domains
     if (url.includes('instagram.com')) {
-      // Instagram is generally safe and has a high rank
       if (trustScore === 'Unknown') {
         trustScore = 85;
         domainAge = '12+ years';
@@ -155,14 +166,50 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.url) {
     // Ignore browser internal pages and the WebSentinal app itself
     if (!tab.url.startsWith('chrome://') && 
-        !tab.url.startsWith('chrome-extension://') && 
-        !tab.url.includes('localhost:5001')) {
+        !tab.url.startsWith('chrome-extension://')) {
       
       console.log("Tab updated, checking URL:", tab.url);
+      
+      // Skip localhost URLs
+      if (tab.url.includes('localhost') || 
+          tab.url.includes('127.0.0.1') || 
+          tab.url === 'http://127.0.0.1:5001/' ||
+          tab.url.startsWith('http://127.0.0.1:5001')) {
+        console.log("Localhost URL detected, marking as safe:", tab.url);
+        
+        // Store the result for the popup
+        chrome.storage.local.set({ 
+          [tab.url]: {
+            result: {
+              isSafe: true,
+              trustScore: 100,
+              domainAge: 'Local Development',
+              domainRank: 'Local',
+              details: 'Local development server'
+            },
+            timestamp: Date.now()
+          }
+        });
+        
+        // Update the extension icon to indicate safety
+        chrome.action.setBadgeText({ text: '✓' });
+        chrome.action.setBadgeBackgroundColor({ color: '#00FF00' });
+        
+        return;
+      }
       
       // Check the URL safety
       checkUrlSafety(tab.url).then(result => {
         console.log("Safety check result:", result);
+        
+        // Skip showing warnings for localhost URLs
+        if (tab.url.includes('localhost') || 
+            tab.url.includes('127.0.0.1') || 
+            tab.url === 'http://127.0.0.1:5001/' ||
+            tab.url.startsWith('http://127.0.0.1:5001')) {
+          console.log("Skipping warning for localhost URL:", tab.url);
+          return;
+        }
         
         if (!result.isSafe) {
           // Send a message to the content script to show a warning

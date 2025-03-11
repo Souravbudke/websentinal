@@ -1,12 +1,8 @@
 {% extends "base.html" %}
-<!DOCTYPE html>
-<html>
 
-<body>
+{% block content %}
 
-    {% block content %}
-
-    <div class="container">
+<div class="container">
 
         <a href="/" class="logo">
             <h1 itemprop="name">WebSentinel</h1>
@@ -22,7 +18,7 @@
             <button type="submit" class="btn" onclick="showLoadingSpinner()"><b>Analyze URL</b></button>
         </form>
 
-        {% if output != "NA" %}
+        {% if output %}
         <div class="result">
 
             {% if output.status == "SUCCESS" %}
@@ -163,9 +159,5 @@
 
     </div>
 
-    {% endblock %}
-
-</body>
-
-</html>
+{% endblock %}
 

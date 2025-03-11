@@ -1,0 +1,190 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 350px;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+.header {
+  background-color: #4a6cf7;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  border-bottom: 3px solid #3a5ce5;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.content {
+  padding: 15px;
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#status-container {
+  margin-bottom: 15px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid;
+}
+
+.status-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  font-size: 20px;
+}
+
+.safe {
+  background-color: #e6f7e6;
+  border-color: #c3e6cb;
+}
+
+.safe .status-icon {
+  background-color: #28a745;
+  color: white;
+}
+
+.unsafe {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.unsafe .status-icon {
+  background-color: #dc3545;
+  color: white;
+}
+
+.unknown {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+.unknown .status-icon {
+  background-color: #ffc107;
+  color: white;
+}
+
+.status-text h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.status-text p {
+  margin: 5px 0 0 0;
+  font-size: 14px;
+}
+
+.details {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.details h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #4a6cf7;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.detail-label {
+  color: #6c757d;
+}
+
+.detail-value {
+  font-weight: 500;
+}
+
+.warning-message {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+}
+
+.icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.message strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.message p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 12px 0;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover {
+  background-color: #3a5ce5;
+}
+
+.button:active {
+  background-color: #2f4ccc;
+}
+
+#current-url {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.footer {
+  text-align: center;
+  padding: 10px 15px;
+  font-size: 12px;
+  color: #6c757d;
+  border-top: 1px solid #dee2e6;
+  margin-bottom: 50px;
+} 
