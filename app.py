@@ -153,4 +153,4 @@ def update_json():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)  # Re-enabled reloader
+    app.run(host='0.0.0.0', port=5001)
