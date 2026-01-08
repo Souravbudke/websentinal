@@ -331,57 +331,79 @@ def test(domain):
 
 
 def calculate_trust_score(current_score, case, value):
-
-    score = current_score
-
-    if case == 'domain_rank':
-        if value == 0:  # not in top 10L rank
-            score = current_score #- (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE * 0.5)
-        elif value < 100000:  # in top 1L rank
-            score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE)
-        elif value < 500000:  # in 1L - 5L rank
-            score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE * 0.8)
-        else:  # in 5L - 10L rank
-            score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE * 0.6)
+    try:
+        # Convert current_score to int if it's a string
+        if isinstance(current_score, str):
+            current_score = int(current_score)
+        
+        # Handle special cases
+        if value == 'Not Given' or value is None:
+            return current_score
+            
+        # Convert value to int if it's a string and represents a number
+        if isinstance(value, str):
+            try:
+                value = int(value)
+            except ValueError:
+                return current_score
+                
+        score = current_score
+        
+        if case == 'domain_rank':
+            if value == 0:  # not in top 10L rank
+                score = current_score  # No change
+            elif value < 100000:  # in top 1L rank
+                score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE)
+            elif value < 500000:  # in 1L - 5L rank
+                score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE * 0.8)
+            else:  # in 5L - 10L rank
+                score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_rank'] * BASE_SCORE * 0.6)
+            return score
+            
+        elif case == 'domain_age':
+            if isinstance(value, (int, float)):
+                if value < 5:
+                    score = current_score - (PROPERTY_SCORE_WEIGHTAGE['domain_age'] * BASE_SCORE)
+                elif value >= 5 and value < 10:
+                    score = current_score  # No change
+                elif value >= 10:
+                    score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_age'] * BASE_SCORE)
+            return score
+            
+        elif case == 'is_url_shortened':
+            if value == 1:
+                score = current_score - (PROPERTY_SCORE_WEIGHTAGE['is_url_shortened'] * BASE_SCORE)
+            return score
+            
+        elif case == 'hsts_support':
+            if value == 1:
+                score = current_score + (PROPERTY_SCORE_WEIGHTAGE['hsts_support'] * BASE_SCORE)
+            else:
+                score = current_score - (PROPERTY_SCORE_WEIGHTAGE['hsts_support'] * BASE_SCORE)
+            return score
+            
+        elif case == 'ip_present':
+            if value == 1:
+                score = current_score - (PROPERTY_SCORE_WEIGHTAGE['ip_present'] * BASE_SCORE)
+            return score
+            
+        elif case == 'url_redirects':
+            if value:
+                score = current_score - (PROPERTY_SCORE_WEIGHTAGE['url_redirects'] * BASE_SCORE)
+            return score
+            
+        elif case == 'too_long_url':
+            if value == 1:
+                score = current_score - (PROPERTY_SCORE_WEIGHTAGE['too_long_url'] * BASE_SCORE)
+            return score
+            
+        elif case == 'too_deep_url':
+            if value == 1:
+                score = current_score - (PROPERTY_SCORE_WEIGHTAGE['too_deep_url'] * BASE_SCORE)
+            return score
+            
         return score
-
-    elif case == 'domain_age':
-        if value < 5:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['domain_age'] * BASE_SCORE)
-        elif value >= 5 and value < 10:
-            score = current_score
-        elif value >= 10:
-            score = current_score + (PROPERTY_SCORE_WEIGHTAGE['domain_age'] * BASE_SCORE)
-        return score
-
-    elif case == 'is_url_shortened':
-        if value == 1:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['is_url_shortened'] * BASE_SCORE)
-        return score
-
-    elif case == 'hsts_support':
-        if value == 1:
-            score = current_score + (PROPERTY_SCORE_WEIGHTAGE['hsts_support'] * BASE_SCORE)
-        else:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['hsts_support'] * BASE_SCORE)
-        return score
-
-    elif case == 'ip_present':
-        if value == 1:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['ip_present'] * BASE_SCORE)
-        return score
-
-    elif case == 'url_redirects':
-        if value:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['url_redirects'] * BASE_SCORE)
-        return score
-
-    elif case == 'too_long_url':
-        if value == 1:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['too_long_url'] * BASE_SCORE)
-        return score
-
-    elif case == 'too_deep_url':
-        if value == 1:
-            score = current_score - (PROPERTY_SCORE_WEIGHTAGE['too_deep_url'] * BASE_SCORE)
-        return score
+        
+    except Exception as e:
+        print(f"Error in calculate_trust_score: {e}")
+        return current_score

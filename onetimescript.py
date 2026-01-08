@@ -17,7 +17,7 @@ If you want to update the list and JSON on your local machine, follow these step
 2. Copy it to the `/static/data/` directory.
 3. Execute the `onetimescript.py` file. It takes about 10-20 seconds to execute the script.
 
-Last Executed Date With Latest top-1m.csv : 2024-03-04
+Last Executed Date With Latest top-1m.csv : 2025-03-22
 """
 
 class OneTimeScript:
@@ -80,21 +80,26 @@ class OneTimeScript:
             if not self.check_file_existence():
                 return {'status': 'ERROR', 'msg':"File does not exist. Please add file at " + self.file_path}
             
-            Session = sessionmaker(autoflush=False, bind=db.engine)
-            session = Session()
-            batch_size = 10000  # Adjust based on your system's capabilities
-            with open(self.file_path, 'r') as file:
-                reader = csv.reader(file)
-                batch = []
-                for index, row in enumerate(reader):
-                    batch.append({'domain_name': row[1], 'rank': int(row[0])})
-                    if (index + 1) % batch_size == 0:
+            # Import app inside the function to avoid circular imports
+            from app import app
+            
+            # Create application context
+            with app.app_context():
+                Session = sessionmaker(autoflush=False, bind=db.engine)
+                session = Session()
+                batch_size = 10000  # Adjust based on your system's capabilities
+                with open(self.file_path, 'r') as file:
+                    reader = csv.reader(file)
+                    batch = []
+                    for index, row in enumerate(reader):
+                        batch.append({'domain_name': row[1], 'rank': int(row[0])})
+                        if (index + 1) % batch_size == 0:
+                            db.session.bulk_insert_mappings(DomainRank, batch)
+                            db.session.commit()
+                            batch = []
+                    if batch:
                         db.session.bulk_insert_mappings(DomainRank, batch)
                         db.session.commit()
-                        batch = []
-                if batch:
-                    db.session.bulk_insert_mappings(DomainRank, batch)
-                    db.session.commit()
             end = time.time()
             return {'status': 'SUCCESS', 'msg':'Execution Time: ' + str(round(end - start, 2)) + ' seconds'}
 
@@ -114,3 +119,12 @@ def update_json():
     script = OneTimeScript()
     script_response = script.create_sorted_arr_and_dict()
     return script_response
+
+if __name__ == "__main__":
+    print("Updating JSON rankings...")
+    json_result = update_json()
+    print(json_result)
+    
+    print("\nUpdating database...")
+    db_result = update_db()
+    print(db_result)
